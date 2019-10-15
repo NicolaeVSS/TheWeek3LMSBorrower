@@ -1,5 +1,6 @@
 package com.ss.lms.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,9 @@ import com.ss.lms.entity.BookLoanCompositeKey;
 import com.ss.lms.entity.Borrower;
 import com.ss.lms.entity.LibraryBranch;
 import com.ss.lms.entity.Publisher;
+import com.ss.lms.special.BookCopyDao;
+import com.ss.lms.special.BookCopyJoin;
+import com.ss.lms.special.BookloanDao;
 
 @Component
 public class BorrowerService {
@@ -39,6 +43,10 @@ public class BorrowerService {
 	private BookLoanDataAccess bookLoanDao;
 	@Autowired
 	private BookCopyDataAccess bookCopyDao;
+	@Autowired
+	private BookloanDao daoBookloan;
+	@Autowired
+	private BookCopyDao daoBookCopy;
 	
 	
 	/*************************************************
@@ -135,8 +143,8 @@ public class BorrowerService {
 	{
 		return bookLoanDao.findAll();
 	}
-	public Iterable<BookLoan> readAllByCardNo(Integer cardNo){
-		return bookLoanDao.findByCardNo(cardNo);
+	public List<BookLoan> readAllByCardNo(Integer cardNo){
+		return daoBookloan.findByCardNo(cardNo);
 	}
 	
 	public Optional<BookCopy> readBookCopyByBranchId(BookCopyCompositeKey bookCopyCompositeKey){
@@ -147,8 +155,8 @@ public class BorrowerService {
 		return bookCopyDao.findAll();
 	}
 	
-	public Iterable<BookCopy> readAllCopyByBranch(Integer branchId){
-		return bookCopyDao.findByBranch(branchId);
+	public List<BookCopyJoin> readAllCopyByBranch(Integer branchId){
+		return daoBookCopy.readAllCopyByBranch(branchId);
 	}
 	/*************************************************
 	 * 

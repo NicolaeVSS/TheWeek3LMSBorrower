@@ -1,6 +1,9 @@
 package com.ss.lms.controller;
 
+import java.util.ArrayList;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ss.lms.special.*;
 import com.ss.lms.entity.BookCopy;
 import com.ss.lms.entity.BookCopyCompositeKey;
 import com.ss.lms.entity.BookLoan;
@@ -34,7 +38,7 @@ public class BorrowerController {
 	
 	@PostMapping(path = "/bookloan", produces = "application/json", consumes="application/json")
 	public ResponseEntity<BookLoan> createBookLoan(@RequestBody BookLoan bookloan){
-		
+		System.out.println("i made it");
 		if(bookloan.getCardNo() == null || bookloan.getBookId() == null || bookloan.getBranchId() == null || 
 				bookloan.getDateOut() == null || bookloan.getDueDate() == null) {
 			return new ResponseEntity<BookLoan>(HttpStatus.BAD_REQUEST);
@@ -100,18 +104,28 @@ public class BorrowerController {
 	 ************************************************/
 	
 	
-	@GetMapping(value = "/bookloan/{cardNo}", produces = "application/json")
+	@GetMapping(value = "/bookloan/{cardNo}", produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE})
 	public ResponseEntity<Iterable<BookLoan>> readBookLoanByAllId(@PathVariable("cardNo") Integer cardNo)
 	{
-		Iterable<BookLoan> result = borrow.readAllByCardNo(cardNo);
+		
+		AnnotationConfigApplicationContext text = new AnnotationConfigApplicationContext(BorrowerConfig.class);
+		
+		BookLoanBase blb = text.getBean(BookLoanBase.class);
+		
+		
+		ArrayList<BookLoan> result;
+		result = (ArrayList<BookLoan>) blb.findByCardNo(cardNo);
+
 				
 		// 200 regardless of if we found it or not, the query was successful, it means they can keep doing it
 		if(!result.iterator().hasNext()) 
 		{
+			text.close();
 			return new ResponseEntity<Iterable<BookLoan>>(HttpStatus.NOT_FOUND);
 		}
 		else
 		{
+			text.close();
 			return new ResponseEntity<Iterable<BookLoan>>(result, HttpStatus.OK);
 		}
 	}
@@ -133,16 +147,23 @@ public class BorrowerController {
 	}
 	
 	@GetMapping(value = "/BookCopy/{branchId}", produces = "application/json")
-	public ResponseEntity<Iterable<BookCopy>> readAllBookCopies(@PathVariable Integer branchId){
+	public ResponseEntity<Iterable<BookCopyJoin>> readAllBookCopies(@PathVariable Integer branchId){
 		
-		Iterable<BookCopy> result = borrow.readAllCopyByBranch(branchId);
+		AnnotationConfigApplicationContext text = new AnnotationConfigApplicationContext(BorrowerConfig.class);
+		BookCopyBase bcb = text.getBean(BookCopyBase.class);
+		
+		ArrayList<BookCopyJoin> result;
+		result = (ArrayList<BookCopyJoin>) bcb.readAllCopyByBranch(branchId); 
+
 		if(!result.iterator().hasNext()) 
 		{
-			return new ResponseEntity<Iterable<BookCopy>>(HttpStatus.NOT_FOUND);
+			text.close();
+			return new ResponseEntity<Iterable<BookCopyJoin>>(HttpStatus.NOT_FOUND);
 		}
 		else
 		{
-			return new ResponseEntity<Iterable<BookCopy>>(result, HttpStatus.OK);
+			text.close();
+			return new ResponseEntity<Iterable<BookCopyJoin>>(result, HttpStatus.OK);
 		}
 	}
 		
