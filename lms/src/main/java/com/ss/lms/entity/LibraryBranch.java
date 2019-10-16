@@ -9,7 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Entity(name = "tbl_library_branch")
+@Entity
 @Table(name = "tbl_library_branch")
 public class LibraryBranch implements Serializable
 {
@@ -23,12 +23,6 @@ public class LibraryBranch implements Serializable
 	private String branchAddress;
 
 	public LibraryBranch(){}
-
-	public LibraryBranch(String branchName, String branchAddress)
-	{
-		this.branchName = branchName;
-		this.branchAddress = branchAddress;
-	}
 	
 	public LibraryBranch(Integer branchId, String branchName, String branchAddress)
 	{

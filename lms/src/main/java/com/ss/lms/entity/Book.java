@@ -24,13 +24,6 @@ public class Book implements Serializable
 	private Integer pubId; // AHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 
 	public Book() {}
-
-	public Book(String title, Integer authorId, Integer publisherId)
-	{
-		this.title = title;
-		this.authId = authorId;
-		this.pubId = publisherId;
-	}
 	
 	public Book(Integer bookId, String title, Integer authorId, Integer publisherId)
 	{

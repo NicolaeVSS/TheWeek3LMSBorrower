@@ -74,15 +74,15 @@ public class BookCopy implements Serializable
 	@Override
 	public String toString()
 	{
-		return "BookCopy [bookid=" + bookId + ", branchId=" + branchId + ", noOfCopies=" + noOfCopies + "]";
+		return "BookCopy [bookId=" + bookId + ", branchId=" + branchId + ", noOfCopies=" + noOfCopies + "]";
 	}
 
-	public Integer getBookid()
+	public Integer getBookId()
 	{
 		return bookId;
 	}
 
-	public void setBookid(Integer bookid)
+	public void setBookId(Integer bookid)
 	{
 		this.bookId = bookid;
 	}

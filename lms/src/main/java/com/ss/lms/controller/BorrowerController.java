@@ -22,7 +22,7 @@ import com.ss.lms.entity.LibraryBranch;
 import com.ss.lms.service.BorrowerService;
 
 @RestController
-@RequestMapping(value = "/lms/borrower")
+@RequestMapping(value = "/lms/borrower*")
 public class BorrowerController {
 
 	@Autowired
@@ -34,35 +34,42 @@ public class BorrowerController {
 	 * 												*
 	 ************************************************/
 	
-	@PostMapping(path = "/bookloan", produces = "application/json", consumes="application/json")
-	public ResponseEntity<BookLoan> createBookLoan(@RequestBody BookLoan bookloan){
-		
-		if(bookloan.getCardNo() == null || bookloan.getBookId() == null || bookloan.getBranchId() == null || 
-				bookloan.getDateOut() == null || bookloan.getDueDate() == null) {
+	@PostMapping(path = "/bookloan", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE }, 
+									produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+	public ResponseEntity<BookLoan> createBookLoan(@RequestBody BookLoan bookloan)
+	{
+		System.out.println("im ehre");
+		if (bookloan.getCardNo() == null || bookloan.getBookId() == null || bookloan.getBranchId() == null
+				|| bookloan.getDateOut() == null || bookloan.getDueDate() == null)
+		{
 			return new ResponseEntity<BookLoan>(HttpStatus.BAD_REQUEST);
 		}
+		
 		BookLoanCompositeKey loanKey = new BookLoanCompositeKey(bookloan.getBookId(), bookloan.getBranchId(), bookloan.getCardNo());
-		if(borrow.readBookLoanById(loanKey).isPresent()){
-//double check
+
+		if (borrow.readBookLoanById(loanKey).isPresent())
+		{
 			return new ResponseEntity<BookLoan>(HttpStatus.NOT_FOUND);
 		}
+		
 		BookCopyCompositeKey bookCopyCompositeKey = new BookCopyCompositeKey(bookloan.getBookId(), bookloan.getBranchId());
-		if(!borrow.readBookCopyByBranchId(bookCopyCompositeKey).isPresent())
-			{
-//double check
+
+		if (!borrow.readBookCopyById(bookCopyCompositeKey).isPresent())
+		{
 			return new ResponseEntity<BookLoan>(HttpStatus.NOT_FOUND);
 		}
-		int numOfCopies = borrow.readBookCopyByBranchId(bookCopyCompositeKey).get().getNoOfCopies();
-		if(numOfCopies < 1) {
-//double check
+		int numOfCopies = borrow.readBookCopyById(bookCopyCompositeKey).get().getNoOfCopies();
+
+		if (numOfCopies < 1)
+		{
 			return new ResponseEntity<BookLoan>(HttpStatus.NOT_FOUND);
 		}
-			
+
 		BookCopy bookCopy = new BookCopy(bookloan.getBookId(), bookloan.getBranchId(), numOfCopies - 1);
 		borrow.saveBookCopy(bookCopy);
-		
-		return new ResponseEntity<BookLoan>(borrow.saveBookLoan(bookloan),HttpStatus.CREATED);
-			
+
+		return new ResponseEntity<BookLoan>(borrow.saveBookLoan(bookloan), HttpStatus.CREATED);
+
 	}
 	
 	
@@ -74,23 +81,28 @@ public class BorrowerController {
 	
 	
 	
-	@DeleteMapping(value = "/bookloan/{cardNo}/branch/{branchId}/bookId/{bookId}")
+	@DeleteMapping(value = "/bookloan/{cardNo}/branch/{branchId}/book/{bookId}")
 	public ResponseEntity<HttpStatus> deleteBookLoan(@PathVariable Integer cardNo, @PathVariable Integer branchId,@PathVariable Integer bookId)
 	{
-		BookLoanCompositeKey loanKey = new BookLoanCompositeKey(bookId, branchId, cardNo);
+		BookLoanCompositeKey loanKey = new BookLoanCompositeKey(cardNo, branchId, bookId);
+		
 		if(!borrow.readBookLoanById(loanKey).isPresent())
 		{
+			System.out.println("Didnt find th loan");
 			return new ResponseEntity<HttpStatus>(HttpStatus.NOT_FOUND);
 		}
 		
 		BookCopyCompositeKey bookCopyCompositeKey = new BookCopyCompositeKey(bookId, branchId);
-		int numOfCopies = borrow.readBookCopyByBranchId(bookCopyCompositeKey).get().getNoOfCopies();
+		
+		Integer numOfCopies = borrow.readBookCopyById(bookCopyCompositeKey).get().getNoOfCopies();
+		
 		BookCopy bookCopy = new BookCopy(bookId, branchId, numOfCopies + 1);
+		
 		borrow.saveBookCopy(bookCopy);
 		
-		borrow.deleteBookloan(bookId, branchId, cardNo);
-		return new ResponseEntity<HttpStatus>(HttpStatus.NO_CONTENT);
+		borrow.deleteBookloan(cardNo, branchId, bookId);
 		
+		return new ResponseEntity<HttpStatus>(HttpStatus.NO_CONTENT);	
 	}
 	
 	
@@ -102,13 +114,14 @@ public class BorrowerController {
 	 ************************************************/
 	
 	
-	@GetMapping(value = "/bookloan/{cardNo}", produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE})
+	@GetMapping(value = "/bookloan/{cardNo}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	public ResponseEntity<Iterable<BookLoan>> readBookLoanByAllId(@PathVariable("cardNo") Integer cardNo)
 	{
 		
 		Iterable<BookLoan> result = borrow.readAllBookLoan();
 		
 		List<BookLoan> filteredList = new ArrayList<BookLoan>();
+		
 		
 		result.forEach(ele -> 
 		{
@@ -128,7 +141,7 @@ public class BorrowerController {
 		}
 	}
 	
-	@GetMapping(value = "/branch", produces = "application/json")
+	@GetMapping(value = "/branch", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	public ResponseEntity<Iterable<LibraryBranch>> readAllLibraryBranch()
 	{
 		Iterable<LibraryBranch> result = borrow.readAllLibraryBranch();
@@ -143,7 +156,7 @@ public class BorrowerController {
 		}
 	}
 	
-	@GetMapping(value = "/bookcopy/{branchId}", produces = "application/json")
+	@GetMapping(value = "/bookcopy/{branchId}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
 	public ResponseEntity<Iterable<BookCopy>> readAllBookCopies(@PathVariable Integer branchId){
 	
 		Iterable<BookCopy> result = borrow.readAllCopy();
@@ -152,23 +165,21 @@ public class BorrowerController {
 		
 		result.forEach(ele -> 
 		{
-			if(ele.getNoOfCopies() > 0) 
+			if(ele.getNoOfCopies() > 0 && ele.getBranchId() == branchId) 
 			{
-				if(ele.getBranchId() == branchId)
 				filteredList.add(ele);
 			}
 		});
+		
 		if(!filteredList.iterator().hasNext()) 
 		{
 			return new ResponseEntity<Iterable<BookCopy>>(HttpStatus.NOT_FOUND);
 		}
 		else
 		{
+			filteredList.forEach(ele -> System.out.println(ele));
+			
 			return new ResponseEntity<Iterable<BookCopy>>(filteredList, HttpStatus.OK);
 		}
 	}
-		
-	
-
-	
 }

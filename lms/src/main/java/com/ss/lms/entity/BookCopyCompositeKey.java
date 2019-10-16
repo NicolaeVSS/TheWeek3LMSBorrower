@@ -13,10 +13,10 @@ public class BookCopyCompositeKey implements Serializable
 	
 	public BookCopyCompositeKey() {}
 	
-	public BookCopyCompositeKey(Integer bookid, Integer branchId)
+	public BookCopyCompositeKey(Integer bookId, Integer branchId)
 	{
 		super();
-		this.bookId = bookid;
+		this.bookId = bookId;
 		this.branchId = branchId;
 	}
 	
@@ -57,16 +57,16 @@ public class BookCopyCompositeKey implements Serializable
 	@Override
 	public String toString()
 	{
-		return "BookCopyCompositeKey [bookid=" + bookId + ", branchId=" + branchId + "]";
+		return "BookCopyCompositeKey [bookId=" + bookId + ", branchId=" + branchId + "]";
 	}
 	
 	public Integer getBookid()
 	{
 		return bookId;
 	}
-	public void setBookid(Integer bookid)
+	public void setBookid(Integer bookId)
 	{
-		this.bookId = bookid;
+		this.bookId = bookId;
 	}
 	public Integer getBranchId()
 	{

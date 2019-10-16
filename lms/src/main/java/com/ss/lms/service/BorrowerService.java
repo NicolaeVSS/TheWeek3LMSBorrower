@@ -80,7 +80,8 @@ public class BorrowerService {
 		return bookLoanDao.findAll();
 	}
 
-	public Optional<BookCopy> readBookCopyByBranchId(BookCopyCompositeKey bookCopyCompositeKey){
+	public Optional<BookCopy> readBookCopyById(BookCopyCompositeKey bookCopyCompositeKey){
+		System.out.println(bookCopyDao.findById(bookCopyCompositeKey));
 		return bookCopyDao.findById(bookCopyCompositeKey);
 	}
 	
@@ -95,8 +96,8 @@ public class BorrowerService {
 	 *************************************************/
 
 	
-	public void deleteBookloan(Integer bookId, Integer branchId, Integer cardNo) {
-		bookLoanDao.deleteById(new BookLoanCompositeKey(bookId,branchId,cardNo));
+	public void deleteBookloan(Integer cardNo, Integer branchId, Integer bookId ) {
+		bookLoanDao.deleteById(new BookLoanCompositeKey(cardNo, branchId, bookId));
 	}
 
 }

@@ -24,13 +24,6 @@ public class Publisher implements Serializable
 	private String publisherPhone;
 
 	public Publisher(){}
-
-	public Publisher(String publisherName, String publisherAddress, String publisherPhone)
-	{
-		this.publisherName = publisherName;
-		this.publisherAddress = publisherAddress;
-		this.publisherPhone = publisherPhone;
-	}
 	
 	public Publisher(Integer publisherId, String publisherName, String publisherAddress, String publisherPhone)
 	{

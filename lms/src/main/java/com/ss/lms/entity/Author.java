@@ -23,12 +23,6 @@ public class Author implements Serializable
 	private String authorName;
 
 	public Author(){}
-
-
-	public Author(String authorName)
-	{
-		this.authorName = authorName;
-	}
 	
 	public Author(Integer authorId, String authorName)
 	{
