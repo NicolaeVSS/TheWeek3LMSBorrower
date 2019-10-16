@@ -1,9 +1,8 @@
 package com.ss.lms.controller;
 
 import java.util.ArrayList;
-
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ss.lms.special.*;
 import com.ss.lms.entity.BookCopy;
 import com.ss.lms.entity.BookCopyCompositeKey;
 import com.ss.lms.entity.BookLoan;
@@ -38,7 +36,7 @@ public class BorrowerController {
 	
 	@PostMapping(path = "/bookloan", produces = "application/json", consumes="application/json")
 	public ResponseEntity<BookLoan> createBookLoan(@RequestBody BookLoan bookloan){
-		System.out.println("i made it");
+		
 		if(bookloan.getCardNo() == null || bookloan.getBookId() == null || bookloan.getBranchId() == null || 
 				bookloan.getDateOut() == null || bookloan.getDueDate() == null) {
 			return new ResponseEntity<BookLoan>(HttpStatus.BAD_REQUEST);
@@ -77,7 +75,7 @@ public class BorrowerController {
 	
 	
 	@DeleteMapping(value = "/bookloan/{cardNo}/branch/{branchId}/bookId/{bookId}")
-	public ResponseEntity<HttpStatus> deleteBorrower(@PathVariable Integer cardNo, @PathVariable Integer branchId,@PathVariable Integer bookId)
+	public ResponseEntity<HttpStatus> deleteBookLoan(@PathVariable Integer cardNo, @PathVariable Integer branchId,@PathVariable Integer bookId)
 	{
 		BookLoanCompositeKey loanKey = new BookLoanCompositeKey(bookId, branchId, cardNo);
 		if(!borrow.readBookLoanById(loanKey).isPresent())
@@ -108,33 +106,32 @@ public class BorrowerController {
 	public ResponseEntity<Iterable<BookLoan>> readBookLoanByAllId(@PathVariable("cardNo") Integer cardNo)
 	{
 		
-		AnnotationConfigApplicationContext text = new AnnotationConfigApplicationContext(BorrowerConfig.class);
+		Iterable<BookLoan> result = borrow.readAllBookLoan();
 		
-		BookLoanBase blb = text.getBean(BookLoanBase.class);
+		List<BookLoan> filteredList = new ArrayList<BookLoan>();
 		
-		
-		ArrayList<BookLoan> result;
-		result = (ArrayList<BookLoan>) blb.findByCardNo(cardNo);
-
-				
-		// 200 regardless of if we found it or not, the query was successful, it means they can keep doing it
-		if(!result.iterator().hasNext()) 
+		result.forEach(ele -> 
 		{
-			text.close();
+			if(ele.getCardNo() == cardNo) 
+			{
+				filteredList.add(ele);
+			}
+		});
+		
+		if(!filteredList.iterator().hasNext()) 
+		{ 
 			return new ResponseEntity<Iterable<BookLoan>>(HttpStatus.NOT_FOUND);
 		}
 		else
 		{
-			text.close();
-			return new ResponseEntity<Iterable<BookLoan>>(result, HttpStatus.OK);
+			return new ResponseEntity<Iterable<BookLoan>>(filteredList, HttpStatus.OK);
 		}
 	}
 	
-	@GetMapping(value = "/branch", produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE})
+	@GetMapping(value = "/branch", produces = "application/json")
 	public ResponseEntity<Iterable<LibraryBranch>> readAllLibraryBranch()
 	{
 		Iterable<LibraryBranch> result = borrow.readAllLibraryBranch();
-		
 		// 200 regardless of if we found it or not, the query was successful, it means they can keep doing it
 		if(!result.iterator().hasNext()) 
 		{
@@ -146,24 +143,28 @@ public class BorrowerController {
 		}
 	}
 	
-	@GetMapping(value = "/BookCopy/{branchId}", produces = "application/json")
-	public ResponseEntity<Iterable<BookCopyJoin>> readAllBookCopies(@PathVariable Integer branchId){
+	@GetMapping(value = "/bookcopy/{branchId}", produces = "application/json")
+	public ResponseEntity<Iterable<BookCopy>> readAllBookCopies(@PathVariable Integer branchId){
+	
+		Iterable<BookCopy> result = borrow.readAllCopy();
 		
-		AnnotationConfigApplicationContext text = new AnnotationConfigApplicationContext(BorrowerConfig.class);
-		BookCopyBase bcb = text.getBean(BookCopyBase.class);
+		List<BookCopy> filteredList = new ArrayList<BookCopy>();
 		
-		ArrayList<BookCopyJoin> result;
-		result = (ArrayList<BookCopyJoin>) bcb.readAllCopyByBranch(branchId); 
-
-		if(!result.iterator().hasNext()) 
+		result.forEach(ele -> 
 		{
-			text.close();
-			return new ResponseEntity<Iterable<BookCopyJoin>>(HttpStatus.NOT_FOUND);
+			if(ele.getNoOfCopies() > 0) 
+			{
+				if(ele.getBranchId() == branchId)
+				filteredList.add(ele);
+			}
+		});
+		if(!filteredList.iterator().hasNext()) 
+		{
+			return new ResponseEntity<Iterable<BookCopy>>(HttpStatus.NOT_FOUND);
 		}
 		else
 		{
-			text.close();
-			return new ResponseEntity<Iterable<BookCopyJoin>>(result, HttpStatus.OK);
+			return new ResponseEntity<Iterable<BookCopy>>(filteredList, HttpStatus.OK);
 		}
 	}
 		

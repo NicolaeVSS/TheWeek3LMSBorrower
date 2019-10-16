@@ -2,6 +2,8 @@ package com.ss.lms.entity;
 
 import java.io.Serializable;
 
+import javax.persistence.IdClass;
+
 public class BookLoanCompositeKey implements Serializable
 {
 	private static final long serialVersionUID = 6330584754225219104L;
