@@ -1,5 +1,7 @@
 package com.ss.lms.controller;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -73,7 +75,7 @@ public class BorrowerController {
 	
 	
 	@DeleteMapping(value = "/bookloan/{cardNo}/branch/{branchId}/bookId/{bookId}")
-	public ResponseEntity<HttpStatus> deleteBorrower(@PathVariable Integer cardNo, @PathVariable Integer branchId,@PathVariable Integer bookId)
+	public ResponseEntity<HttpStatus> deleteBookLoan(@PathVariable Integer cardNo, @PathVariable Integer branchId,@PathVariable Integer bookId)
 	{
 		BookLoanCompositeKey loanKey = new BookLoanCompositeKey(bookId, branchId, cardNo);
 		if(!borrow.readBookLoanById(loanKey).isPresent())
@@ -100,27 +102,36 @@ public class BorrowerController {
 	 ************************************************/
 	
 	
-	@GetMapping(value = "/bookloan/{cardNo}", produces = "application/json")
+	@GetMapping(value = "/bookloan/{cardNo}", produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE})
 	public ResponseEntity<Iterable<BookLoan>> readBookLoanByAllId(@PathVariable("cardNo") Integer cardNo)
 	{
-		Iterable<BookLoan> result = borrow.readAllByCardNo(cardNo);
-				
-		// 200 regardless of if we found it or not, the query was successful, it means they can keep doing it
-		if(!result.iterator().hasNext()) 
+		
+		Iterable<BookLoan> result = borrow.readAllBookLoan();
+		
+		List<BookLoan> filteredList = new ArrayList<BookLoan>();
+		
+		result.forEach(ele -> 
 		{
+			if(ele.getCardNo() == cardNo) 
+			{
+				filteredList.add(ele);
+			}
+		});
+		
+		if(!filteredList.iterator().hasNext()) 
+		{ 
 			return new ResponseEntity<Iterable<BookLoan>>(HttpStatus.NOT_FOUND);
 		}
 		else
 		{
-			return new ResponseEntity<Iterable<BookLoan>>(result, HttpStatus.OK);
+			return new ResponseEntity<Iterable<BookLoan>>(filteredList, HttpStatus.OK);
 		}
 	}
 	
-	@GetMapping(value = "/branch", produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE})
+	@GetMapping(value = "/branch", produces = "application/json")
 	public ResponseEntity<Iterable<LibraryBranch>> readAllLibraryBranch()
 	{
 		Iterable<LibraryBranch> result = borrow.readAllLibraryBranch();
-		
 		// 200 regardless of if we found it or not, the query was successful, it means they can keep doing it
 		if(!result.iterator().hasNext()) 
 		{
@@ -132,17 +143,28 @@ public class BorrowerController {
 		}
 	}
 	
-	@GetMapping(value = "/BookCopy/{branchId}", produces = "application/json")
+	@GetMapping(value = "/bookcopy/{branchId}", produces = "application/json")
 	public ResponseEntity<Iterable<BookCopy>> readAllBookCopies(@PathVariable Integer branchId){
+	
+		Iterable<BookCopy> result = borrow.readAllCopy();
 		
-		Iterable<BookCopy> result = borrow.readAllCopyByBranch(branchId);
-		if(!result.iterator().hasNext()) 
+		List<BookCopy> filteredList = new ArrayList<BookCopy>();
+		
+		result.forEach(ele -> 
+		{
+			if(ele.getNoOfCopies() > 0) 
+			{
+				if(ele.getBranchId() == branchId)
+				filteredList.add(ele);
+			}
+		});
+		if(!filteredList.iterator().hasNext()) 
 		{
 			return new ResponseEntity<Iterable<BookCopy>>(HttpStatus.NOT_FOUND);
 		}
 		else
 		{
-			return new ResponseEntity<Iterable<BookCopy>>(result, HttpStatus.OK);
+			return new ResponseEntity<Iterable<BookCopy>>(filteredList, HttpStatus.OK);
 		}
 	}
 		
