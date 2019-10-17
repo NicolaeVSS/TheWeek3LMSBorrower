@@ -34,7 +34,8 @@ public class BorrowerController {
 	 * 												*
 	 ************************************************/
 	
-	@PostMapping(path = "/bookloan", produces = "application/json", consumes="application/json")
+	@PostMapping(path = "/bookloan",  produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE},
+					consumes = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE})
 	public ResponseEntity<BookLoan> createBookLoan(@RequestBody BookLoan bookloan){
 		
 		if(bookloan.getCardNo() == null || bookloan.getBookId() == null || bookloan.getBranchId() == null || 
@@ -143,7 +144,7 @@ public class BorrowerController {
 		}
 	}
 	
-	@GetMapping(value = "/bookcopy/{branchId}", produces = "application/json")
+	@GetMapping(value = "/bookcopy/{branchId}",  produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE})
 	public ResponseEntity<Iterable<BookCopy>> readAllBookCopies(@PathVariable Integer branchId){
 	
 		Iterable<BookCopy> result = borrow.readAllCopy();

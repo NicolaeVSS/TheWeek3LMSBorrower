@@ -20,8 +20,8 @@ public class Book implements Serializable
 	@Column(updatable = false)
 	private Integer bookId;
 	private String title;
-	private Integer authId; // AHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
-	private Integer pubId; // AHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+	private Integer authId; 
+	private Integer pubId; 
 
 	public Book() {}
 
