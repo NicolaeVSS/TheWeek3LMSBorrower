@@ -129,7 +129,7 @@ public class BorrowerController {
 		}
 	}
 	
-	@GetMapping(value = "/branch", produces = "application/json")
+	@GetMapping(value = "/branch", produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE})
 	public ResponseEntity<Iterable<LibraryBranch>> readAllLibraryBranch()
 	{
 		Iterable<LibraryBranch> result = borrow.readAllLibraryBranch();
